@@ -36,31 +36,21 @@ export function createClassStream(
     const thisNode = dataFactory.namedNode(iri)
     const classDataStream = store.match(thisNode)
 
-    const v = dataFactory.variable("prop")
     const classProperties = store.match(
-        v,
+        undefined,
         dataFactory.namedNode("http://schema.org/domainIncludes"),
         thisNode
     )
-    const classPropertiesData = store.match(v)
-    // const classLinks = store.match(
-    //     undefined,
-    //     dataFactory.namedNode("http://schema.org/rangeIncludes"),
-    //     thisNode
-    // )
+    const classLinks = store.match(
+        undefined,
+        dataFactory.namedNode("http://schema.org/rangeIncludes"),
+        thisNode
+    )
 
     // prettier-ignore
     /**  @ts-ignore */
-    const outStream = mergeStream(classDataStream,
-        classProperties,
-        classPropertiesData
-    )
+    const outStream = mergeStream(classDataStream, classProperties, classLinks)
 
-    // classDataStream.pipe(outStream);
-    // /** @ts-ignore */
-    // classProperties.pipe(outStream);
-    // /** @ts-ignore */
-    // classLinks.pipe(outStream);
     return outStream
 }
 
