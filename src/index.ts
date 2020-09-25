@@ -10,7 +10,11 @@ import { DataFactory } from "rdf-data-factory"
 import { Store, Stream } from "rdf-js"
 
 import mergeStream from "merge-stream"
-import rdfSerializer from "rdf-serialize"
+// import rdfSerializer from "rdf-serialize"
+
+// import stringifyStream from "stream-to-string"
+import { select } from "./sparql"
+import { turtle } from "./serializers"
 
 export async function waitStream(stream: Stream, log?: boolean) {
     return new Promise((resolve, reject) => {
@@ -59,8 +63,6 @@ export function createPropertyStream(iri: string, store: Store): Stream {
     return store.match(thisNode)
 }
 
-import stringifyStream from "stream-to-string"
-
 export async function generate(filename: string) {
     const dataStream = rdfParser.parse(createReadStream(filename), {
         path: filename,
@@ -76,10 +78,11 @@ export async function generate(filename: string) {
 
     // await waitStream(quadStream, true)
 
-    const textStream = rdfSerializer.serialize(quadStream, {
-        contentType: "text/turtle",
-        // path: "http://example.org/myfile.ttl",
-    })
-    const out = await stringifyStream(textStream)
-    console.log(out)
+    const _out = turtle(quadStream)
 }
+
+console.log("start")
+select().then(() => {
+    console.log("promise end")
+})
+console.log("done")
