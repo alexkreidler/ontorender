@@ -13,7 +13,12 @@ import mergeStream from "merge-stream"
 // import rdfSerializer from "rdf-serialize"
 
 // import stringifyStream from "stream-to-string"
-import { renderClass, renderClasses } from "./sparql"
+import {
+    renderClass,
+    renderClasses,
+    renderProperties,
+    renderProperty,
+} from "./sparql"
 import { turtle } from "./serializers"
 
 export async function waitStream(stream: Stream, log?: boolean) {
@@ -82,8 +87,11 @@ export async function generate(filename: string) {
 }
 
 console.log("start")
-renderClasses("/home/alex/c2/schemaorg/data/schema.ttl").then(() => {
-    console.log("promise 1 end")
+// renderClasses("/home/alex/c2/schemaorg/data/schema.ttl").then(() => {
+//     console.log("promise 1 end")
+// })
+renderProperties("/home/alex/c2/schemaorg/data/schema.ttl").then(() => {
+    console.log("promise 2 end")
 })
 // renderClass("schema:Person", "/home/alex/c2/schemaorg/data/schema.ttl").then(
 //     () => {
