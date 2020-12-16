@@ -16,9 +16,9 @@ import { DatasetCore, Stream, Quad, Term, NamedNode } from "rdf-js"
 import { GraphyMemoryDataset } from "@graphy/memory.dataset.fast"
 import merge from "merge-stream"
 
-// import pLimit from "p-limit"
+import pLimit from "p-limit"
 
-// const limit = pLimit(3)
+const limit = pLimit(3)
 
 const input = "/home/alex/c2/schemaorg/data/schema.ttl"
 const output = "/home/alex/c2/ontorender/work2"
@@ -87,22 +87,17 @@ async function work(input: string, _output: string) {
 
     console.log("Completed loading")
 
-    console.log("Starting properties")
-
     const properties = clownface({ dataset }).has(rdf.type, rdf.Property)
 
-    const workers = properties.map((q) => renderProperty(handlePointer(q)))
-    await Promise.all(workers)
-
-    console.log("Properties done")
-
-    console.log("Starting classes")
+    const workers = properties.map((q) =>
+        limit(() => renderProperty(handlePointer(q)))
+    )
 
     const classes = clownface({ dataset }).has(rdf.type, rdfs.Class)
 
-    const w2 = classes.map((q) => renderClass(handlePointer(q)))
-    await Promise.all(w2)
-    console.log("Classes done")
+    const w2 = classes.map((q) => limit(() => renderClass(handlePointer(q))))
+
+    await Promise.all([...workers, ...w2])
 }
 
 console.log("Starting")
