@@ -1,0 +1,57 @@
+<http://schema.org/WebPage> a <http://www.w3.org/2000/01/rdf-schema#Class>;
+    <http://www.w3.org/2000/01/rdf-schema#label> "WebPage";
+    <http://www.w3.org/2000/01/rdf-schema#comment> "A web page. Every web page is implicitly assumed to be declared to be of type WebPage, so the various properties about that webpage, such as <code>breadcrumb</code> may be used. We recommend explicit declaration if these properties are specified, but if they are found outside of an itemscope, they will be assumed to be about the page.";
+    <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://schema.org/CreativeWork>.
+<http://schema.org/breadcrumb> a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>;
+    <http://www.w3.org/2000/01/rdf-schema#label> "breadcrumb";
+    <http://schema.org/domainIncludes> <http://schema.org/WebPage>;
+    <http://schema.org/rangeIncludes> <http://schema.org/BreadcrumbList>, <http://schema.org/Text>;
+    <http://www.w3.org/2000/01/rdf-schema#comment> "A set of links that can help a user understand and navigate a website hierarchy.".
+<http://schema.org/lastReviewed> a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>;
+    <http://www.w3.org/2000/01/rdf-schema#label> "lastReviewed";
+    <http://schema.org/domainIncludes> <http://schema.org/WebPage>;
+    <http://schema.org/rangeIncludes> <http://schema.org/Date>;
+    <http://www.w3.org/2000/01/rdf-schema#comment> "Date on which the content on this web page was last reviewed for accuracy and/or completeness.".
+<http://schema.org/mainContentOfPage> a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>;
+    <http://www.w3.org/2000/01/rdf-schema#label> "mainContentOfPage";
+    <http://schema.org/domainIncludes> <http://schema.org/WebPage>;
+    <http://schema.org/rangeIncludes> <http://schema.org/WebPageElement>;
+    <http://www.w3.org/2000/01/rdf-schema#comment> "Indicates if this web page element is the main subject of the page.".
+<http://schema.org/primaryImageOfPage> a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>;
+    <http://www.w3.org/2000/01/rdf-schema#label> "primaryImageOfPage";
+    <http://schema.org/domainIncludes> <http://schema.org/WebPage>;
+    <http://schema.org/rangeIncludes> <http://schema.org/ImageObject>;
+    <http://www.w3.org/2000/01/rdf-schema#comment> "Indicates the main image on the page.".
+<http://schema.org/relatedLink> a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>;
+    <http://www.w3.org/2000/01/rdf-schema#label> "relatedLink";
+    <http://schema.org/domainIncludes> <http://schema.org/WebPage>;
+    <http://schema.org/rangeIncludes> <http://schema.org/URL>;
+    <http://www.w3.org/2000/01/rdf-schema#comment> "A link related to this web page, for example to other related web pages.".
+<http://schema.org/reviewedBy> a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>;
+    <http://www.w3.org/2000/01/rdf-schema#label> "reviewedBy";
+    <http://schema.org/domainIncludes> <http://schema.org/WebPage>;
+    <http://schema.org/rangeIncludes> <http://schema.org/Organization>, <http://schema.org/Person>;
+    <http://www.w3.org/2000/01/rdf-schema#comment> "People or organizations that have reviewed the content on this web page for accuracy and/or completeness.".
+<http://schema.org/significantLinks> a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>;
+    <http://www.w3.org/2000/01/rdf-schema#label> "significantLinks";
+    <http://schema.org/domainIncludes> <http://schema.org/WebPage>;
+    <http://schema.org/rangeIncludes> <http://schema.org/URL>;
+    <http://schema.org/supersededBy> <http://schema.org/significantLink>;
+    <http://www.w3.org/2000/01/rdf-schema#comment> "The most significant URLs on the page. Typically, these are the non-navigation links that are clicked on the most.".
+<http://schema.org/speakable> a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>;
+    <http://www.w3.org/2000/01/rdf-schema#label> "speakable";
+    <http://schema.org/category> "issue-1389";
+    <http://schema.org/domainIncludes> <http://schema.org/Article>, <http://schema.org/WebPage>;
+    <http://schema.org/rangeIncludes> <http://schema.org/SpeakableSpecification>, <http://schema.org/URL>;
+    <http://schema.org/source> <https://github.com/schemaorg/schemaorg/issues/1389>;
+    <http://www.w3.org/2000/01/rdf-schema#comment> "Indicates sections of a Web page that are particularly 'speakable' in the sense of being highlighted as being especially appropriate for text-to-speech conversion. Other sections of a page may also be usefully spoken in particular circumstances; the 'speakable' property serves to indicate the parts most likely to be generally useful for speech.\n\nThe *speakable* property can be repeated an arbitrary number of times, with three kinds of possible 'content-locator' values:\n\n1.) *id-value* URL references - uses *id-value* of an element in the page being annotated. The simplest use of *speakable* has (potentially relative) URL values, referencing identified sections of the document concerned.\n\n2.) CSS Selectors - addresses content in the annotated page, eg. via class attribute. Use the [[cssSelector]] property.\n\n3.)  XPaths - addresses content via XPaths (assuming an XML view of the content). Use the [[xpath]] property.\n\n\nFor more sophisticated markup of speakable sections beyond simple ID references, either CSS selectors or XPath expressions to pick out document section(s) as speakable. For this\nwe define a supporting type, [[SpeakableSpecification]]  which is defined to be a possible value of the *speakable* property.\n         ".
+<http://schema.org/specialty> a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>;
+    <http://www.w3.org/2000/01/rdf-schema#label> "specialty";
+    <http://schema.org/domainIncludes> <http://schema.org/WebPage>;
+    <http://schema.org/rangeIncludes> <http://schema.org/Specialty>;
+    <http://www.w3.org/2000/01/rdf-schema#comment> "One of the domain specialities to which this web page's content applies.".
+<http://schema.org/significantLink> a <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>;
+    <http://www.w3.org/2000/01/rdf-schema#label> "significantLink";
+    <http://schema.org/domainIncludes> <http://schema.org/WebPage>;
+    <http://schema.org/rangeIncludes> <http://schema.org/URL>;
+    <http://www.w3.org/2000/01/rdf-schema#comment> "One of the more significant URLs on the page. Typically, these are the non-navigation links that are clicked on the most.".

@@ -1,44 +1,16 @@
 import rdfSerializer from "rdf-serialize"
 
-import stringifyStream from "stream-to-string"
+import { DatasetCore, Quad, Stream } from "rdf-js"
 
-import { Stream } from "rdf-js"
-import { GraphyMemoryDataset } from "extra-types"
+import { createWriteStream } from "fs"
 
-import { createReadStream, createWriteStream, promises } from "fs"
-
-// this fixes a weird thing with importing in CJS mode
-const mkdir = promises.mkdir
-const stat = promises.stat
-
-import { dirname, join } from "path"
 import { formats } from "./formats"
-// import { stat } from "fs/promises"
-
-export async function turtle(stream: Stream): Promise<string> {
-    const textStream = rdfSerializer.serialize(stream, {
-        contentType: "text/turtle",
-        // path: "http://example.org/myfile.ttl",
-    })
-    const out = await stringifyStream(textStream)
-    console.log(out)
-    return out
-}
-
-export async function nquads(stream: Stream): Promise<string> {
-    const textStream = rdfSerializer.serialize(stream, {
-        contentType: "application/n-quads",
-        // path: "http://example.org/myfile.ttl",
-    })
-    const out = await stringifyStream(textStream)
-    console.log(out)
-    return out
-}
+import { join } from "path"
 
 export async function serialize_all(
     directory: string,
     name: string,
-    data: GraphyMemoryDataset
+    data: DatasetCore & Stream<Quad>
 ): Promise<void> {
     // Todo: make this async based on Promise.all
     const workers = []
@@ -48,9 +20,7 @@ export async function serialize_all(
         const filename = join(directory, name + format.extensions[0])
         // console.log(`Filename: ${filename}`)
 
-        // We have to do this to copy the stream
-        const fdata = data.match()
-        const textStream = rdfSerializer.serialize(fdata, {
+        const textStream = rdfSerializer.serialize(data, {
             contentType: format.contentType,
             // path: filename,
         })
@@ -66,5 +36,5 @@ export async function serialize_all(
         workers.push(worker)
     }
     await Promise.all(workers)
-    console.log("All done")
+    // console.log("All done")
 }
