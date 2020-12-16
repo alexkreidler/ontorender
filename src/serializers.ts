@@ -40,31 +40,13 @@ export async function serialize_all(
     name: string,
     data: GraphyMemoryDataset
 ): Promise<void> {
-    try {
-        const st = await stat(directory)
-        if (!st.isDirectory) {
-            throw new Error("Input is not directory")
-        }
-    } catch (error) {
-        if (error.code == "ENOENT") {
-            mkdir(directory, { recursive: true })
-        } else {
-            throw error
-        }
-    }
-    // if (dirname(directory) !== directory) {
-    //     throw new Error(
-    //         `Input should be a directory ${dirname(directory)} !== ${directory}`
-    //     )
-    // }
-
     // Todo: make this async based on Promise.all
     const workers = []
     for (let format of formats) {
-        console.log(`Beginning serialization to ${format.name} format!`)
+        // console.log(`Beginning serialization to ${format.name} format!`)
 
         const filename = join(directory, name + format.extensions[0])
-        console.log(`Filename: ${filename}`)
+        // console.log(`Filename: ${filename}`)
 
         // We have to do this to copy the stream
         const fdata = data.match()
@@ -76,7 +58,7 @@ export async function serialize_all(
         textStream.pipe(fstream)
         const worker = new Promise<void>((resolve, reject) => {
             textStream.on("end", () => {
-                console.log(`Done writing in ${format.name} format!`)
+                // console.log(`Done writing in ${format.name} format!`)
                 resolve()
             })
             textStream.on("error", reject)

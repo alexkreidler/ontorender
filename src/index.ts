@@ -1,101 +1,65 @@
-import rdfParser from "rdf-parse"
-export function foo(): string {
-    return "hi"
-}
+import { newEngine } from "@comunica/actor-init-sparql-file"
+import { SparqlOntologyRenderer } from "./sparql"
 
-import { createReadStream } from "fs"
+const inp = "/home/alex/c2/schemaorg/data/schema.ttl"
 
-import { storeStream } from "rdf-store-stream"
-import { DataFactory } from "rdf-data-factory"
-import { Store, Stream } from "rdf-js"
+const renderer = new SparqlOntologyRenderer(
+    inp,
+    "/home/alex/c2/ontorender/work2"
+)
 
-import mergeStream from "merge-stream"
-// import rdfSerializer from "rdf-serialize"
+console.log("Started")
 
-// import stringifyStream from "stream-to-string"
-import {
-    renderClass,
-    renderClasses,
-    renderProperties,
-    renderProperty,
-} from "./sparql"
-import { turtle } from "./serializers"
-
-export async function waitStream(stream: Stream, log?: boolean) {
-    return new Promise((resolve, reject) => {
-        stream
-            .on("data", (quad) => {
-                log ? console.log(quad) : null
-            })
-            .on("error", (error) => {
-                console.error(error)
-                reject(error)
-            })
-            .on("end", () => {
-                console.log("All done!")
-                resolve("done")
-            })
+renderer
+    .render()
+    .then(() => {
+        console.log("Completed")
     })
-}
-const dataFactory = new DataFactory()
-export function createClassStream(
-    iri: string,
-    store: Store
-): NodeJS.ReadableStream {
-    const thisNode = dataFactory.namedNode(iri)
-    const classDataStream = store.match(thisNode)
+    .catch((e) => console.error(e))
 
-    const classProperties = store.match(
-        undefined,
-        dataFactory.namedNode("http://schema.org/domainIncludes"),
-        thisNode
-    )
-    const classLinks = store.match(
-        undefined,
-        dataFactory.namedNode("http://schema.org/rangeIncludes"),
-        thisNode
-    )
+// const eng = newEngine()
+// const propertyIRI = "http://schema.org/givenName"
+// eng.query(
+//     `
+//         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+//         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+//         PREFIX schema: <http://schema.org/>
 
-    // prettier-ignore
-    /**  @ts-ignore */
-    const outStream = mergeStream(classDataStream, classProperties, classLinks)
+//         CONSTRUCT {
+//             <${propertyIRI}> ?p ?o .
+//         } WHERE {
+//             <${propertyIRI}> rdf:type rdf:Property ;
+//                 ?p ?o .
+//         }`,
+//     //     `
+//     //  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+//     //  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+//     //  PREFIX schema: <http://schema.org/>
 
-    return outStream
-}
+//     //  SELECT ?s WHERE {
+//     //      ?s rdf:type rdf:Property .
+//     //  }`,
+//     {
+//         // source: this.inputFile,
+//         sources: [
+//             {
+//                 type: "file",
+//                 value: inp,
+//             },
+//         ],
 
-export function createPropertyStream(iri: string, store: Store): Stream {
-    const thisNode = dataFactory.namedNode(iri)
-    return store.match(thisNode)
-}
+//         // log: new LoggerPretty({ level: "trace" }),
 
-export async function generate(filename: string) {
-    const dataStream = rdfParser.parse(createReadStream(filename), {
-        path: filename,
-    })
-
-    // dataStream
-
-    const store: Store = await storeStream(dataStream)
-
-    const resultStream = createClassStream("http://schema.org/Person", store)
-
-    const quadStream = (resultStream as unknown) as Stream
-
-    // await waitStream(quadStream, true)
-
-    const _out = turtle(quadStream)
-}
-
-console.log("start")
-// renderClasses("/home/alex/c2/schemaorg/data/schema.ttl").then(() => {
-//     console.log("promise 1 end")
-// })
-renderProperties("/home/alex/c2/schemaorg/data/schema.ttl").then(() => {
-    console.log("promise 2 end")
-})
-// renderClass("schema:Person", "/home/alex/c2/schemaorg/data/schema.ttl").then(
-//     () => {
-//         console.log("promise end")
+//         // ],
 //     }
 // )
-console.log("done")
+//     .then(async (out) => {
+//         if (out.type == "quads") {
+//             // out.metadata
+//             // ds.import(result.quadStream as Stream<Quad>)
+//             const qs = await out.quads()
+
+//             console.log(qs[0])
+//         }
+//     })
+//     .catch((e) => console.error(e))
