@@ -1,6 +1,6 @@
 {
   "name": "ontorender",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "description": "Creates static files for your ontology",
   "main": "dist/cjs/index.js",
   "typings": "dist/types/index.d.ts",
