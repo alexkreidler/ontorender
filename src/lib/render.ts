@@ -15,6 +15,9 @@ import { DatasetCore, Stream, Quad, Term, NamedNode } from "rdf-js"
 import dataFactory from "@graphy/memory.dataset.fast"
 import { GraphyMemoryDataset } from "@graphy/memory.dataset.fast"
 import merge from "merge-stream"
+import R from "ramda"
+
+import RDF from "@rdfjs/namespace"
 
 // Weird import workaround for ts-node
 import { promises as fsPromises } from "fs"
@@ -49,21 +52,130 @@ const handlePointer = (p: clownface.AnyPointer): Item => {
     return { name, node: iri, dataset: cx.dataset, pointer: p }
 }
 
-async function renderProperty(item: Item, output: string, force: boolean) {
+const createMarkdown = (item: Item): string => {
+    const isProperty =
+        item.pointer.has(rdf.type, rdf.Property).values.length >= 1
+    const isClass = item.pointer.has(rdf.type, rdfs.Class).values.length >= 1
+    if (isProperty && isClass) {
+        console.warn(
+            `Item: ${item.name} has rdf:type of both Property and Class`
+        )
+    }
+    const description = item.pointer.out(rdfs.comment).value
+
+    interface Detail {
+        name: string
+        predicate: NamedNode | NamedNode[]
+    }
+    const dt = (pointer: clownface.AnyPointer, inp: Detail): string => {
+        const out = pointer.out(inp.predicate).values
+        return out.length > 0 ? `${inp.name}: ${out.join(", ")}\n\n` : ""
+    }
+    const detail = R.curry(dt)
+
+    const propertyDetails = (pointer: clownface.AnyPointer): string => {
+        if (pointer.has(rdf.type, rdf.Property).values.length == 0) {
+            return ""
+        }
+        const schemaHttps = RDF("https://schema.org/")
+        const pd: Detail[] = [
+            { name: "Subproperty of", predicate: rdfs.subPropertyOf },
+            { name: "Domain", predicate: rdfs.domain },
+            {
+                name: "Domain Includes",
+                predicate: [schema.domainIncludes, schemaHttps.domainIncludes],
+            },
+            { name: "Range", predicate: rdfs.range },
+            {
+                name: "Range Includes",
+                predicate: [schema.rangeIncludes, schemaHttps.rangeIncludes],
+            },
+        ]
+        const cd = detail(pointer)
+        const details = pd.map(cd).join("")
+        return details
+            ? `## Details
+${details}`
+            : ""
+    }
+
+    const classDetails = (pointer: clownface.AnyPointer): string => {
+        if (pointer.has(rdf.type, rdfs.Class).values.length == 0) {
+            return ""
+        }
+        const schemaHttps = RDF("https://schema.org/")
+        const pd: Detail[] = [
+            { name: "Subclass of", predicate: rdfs.subClassOf },
+        ]
+        const cd = detail(pointer)
+        const details = pd.map(cd).join("")
+
+        const properties = item.pointer
+            .in([schema.domainIncludes, rdfs.domain])
+            .map(
+                (q) => `### ${computeName(q.value)}
+
+IRI: [${q.value}](${q.value})`
+            )
+
+        return `${
+            details
+                ? `## Details
+${details}`
+                : ""
+        }${
+            properties.length > 0
+                ? `## Properties
+
+${properties.join("\n\n")}`
+                : ""
+        }`
+    }
+
+    const markdown = `# ${item.name}
+
+IRI: [${item.node.value}](${item.node.value})
+
+Type(s): ${item.pointer
+        .out(rdf.type)
+        .values.map((v) => `[${v}](${v})`)
+        .join(", ")}
+
+${description}
+
+${isProperty ? propertyDetails(item.pointer) : ""}${
+        isClass ? classDetails(item.pointer) : ""
+    }`
+
+    return markdown
+}
+
+async function renderProperty(
+    item: Item,
+    output: string,
+    force?: boolean,
+    markdown?: boolean
+) {
     console.log("Rendering property", item.name)
     const data = item.dataset.match(item.node)
+
     // we can do the following b/c we know its graphy
     await serialize_all(
         output,
         item.name,
         data as DatasetCore & Stream<Quad>,
-        force
+        force,
+        markdown ? createMarkdown(item) : undefined
     )
 }
 
-async function renderClass(item: Item, output: string, force: boolean) {
+async function renderClass(
+    item: Item,
+    output: string,
+    force?: boolean,
+    markdown?: boolean
+) {
     console.log("Rendering class", item.name)
-
     const data = item.dataset.match(item.node)
 
     const propertyData = item.pointer
@@ -76,8 +188,14 @@ async function renderClass(item: Item, output: string, force: boolean) {
 
     //@ts-ignore
     const fstream = merge(data as GraphyMemoryDataset, ...propertyData)
-    //@ts-ignore
-    await serialize_all(output, item.name, fstream as Stream<Quad>, force)
+    await serialize_all(
+        output,
+        item.name,
+        //@ts-ignore
+        fstream as Stream<Quad>,
+        force,
+        markdown ? createMarkdown(item) : undefined
+    )
 }
 
 const checkMakeDirectory = async (directory: string) => {
@@ -104,7 +222,12 @@ const checkMakeDirectory = async (directory: string) => {
     }
 }
 
-export async function render(input: string, output: string, force: boolean) {
+export async function render(
+    input: string,
+    output: string,
+    force: boolean,
+    markdown: boolean
+) {
     console.log("Checking output directory")
     await checkMakeDirectory(output)
 
@@ -127,7 +250,7 @@ export async function render(input: string, output: string, force: boolean) {
     const properties = clownface({ dataset }).has(rdf.type, rdf.Property)
 
     const workersProperties = properties.map((q) =>
-        renderProperty(handlePointer(q), output, force)
+        renderProperty(handlePointer(q), output, force, markdown)
     )
     await Promise.all(workersProperties)
 
@@ -138,7 +261,7 @@ export async function render(input: string, output: string, force: boolean) {
     const classes = clownface({ dataset }).has(rdf.type, rdfs.Class)
 
     const workersClasses = classes.map((q) =>
-        renderClass(handlePointer(q), output, force)
+        renderClass(handlePointer(q), output, force, markdown)
     )
     await Promise.all(workersClasses)
     console.log("Classes done")

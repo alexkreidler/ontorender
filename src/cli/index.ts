@@ -19,6 +19,11 @@ class OntologyRender extends Command {
         }),
 
         force: flags.boolean({ description: "overwrites existing files" }),
+
+        markdown: flags.boolean({
+            char: "m",
+            description: "generates markdown descriptions of ontology",
+        }),
     }
 
     static args = [{ name: "file" }]
@@ -26,7 +31,7 @@ class OntologyRender extends Command {
     async run() {
         const { args, flags } = this.parse(OntologyRender)
 
-        await render(flags.from, flags.to, flags.force)
+        await render(flags.from, flags.to, flags.force, flags.markdown)
     }
 }
 
