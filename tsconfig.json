@@ -1,13 +1,14 @@
 {
-    "include": ["src/"],
+    "include": ["src"],
     "compilerOptions": {
         "module": "commonjs",
         "target": "es2017",
-        // "lib": ["dom", "esnext"],
+        "lib": ["dom", "esnext"],
 
         "importHelpers": true,
 
         "rootDir": "src",
+        "typeRoots": ["./typings"],
         "outDir": "dist/cjs",
 
         "declaration": true,

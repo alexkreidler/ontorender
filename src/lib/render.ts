@@ -8,13 +8,17 @@ import { rdf, rdfs, schema } from "@tpluscode/rdf-ns-builders"
 import parser from "rdf-parse"
 import { createReadStream } from "fs"
 
-import dataFactory from "@graphy/memory.dataset.fast"
 import { once } from "events"
 import { computeName } from "./utils"
 import { serialize_all } from "./serializers"
 import { DatasetCore, Stream, Quad, Term, NamedNode } from "rdf-js"
+import dataFactory from "@graphy/memory.dataset.fast"
 import { GraphyMemoryDataset } from "@graphy/memory.dataset.fast"
 import merge from "merge-stream"
+
+// Weird import workaround for ts-node
+import { promises as fsPromises } from "fs"
+const { mkdir, readdir, stat } = fsPromises
 
 // import pLimit from "p-limit"
 
@@ -69,7 +73,34 @@ async function renderClass(item: Item, output: string) {
     await serialize_all(output, item.name, fstream as Stream<Quad>)
 }
 
+const checkMakeDirectory = async (directory: string) => {
+    try {
+        const st = await stat(directory)
+
+        if (!st.isDirectory) {
+            throw new Error("Input is not directory")
+        }
+        if (st.size !== 0) {
+            const o = await readdir(directory)
+            if (o.length !== 0) {
+                console.warn(
+                    `Warning: provided directory is not empty: ${directory}`
+                )
+            }
+        }
+    } catch (error) {
+        if (error.code == "ENOENT") {
+            await mkdir(directory, { recursive: true })
+        } else {
+            throw error
+        }
+    }
+}
+
 export async function render(input: string, output: string) {
+    console.log("Checking output directory")
+    await checkMakeDirectory(output)
+
     console.log("Loading from input file", input)
 
     const textStream = createReadStream(input)
