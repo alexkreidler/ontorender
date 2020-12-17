@@ -1,6 +1,6 @@
 {
   "name": "ontorender",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Creates static files for your ontology",
   "main": "dist/cjs/index.js",
   "typings": "dist/types/index.d.ts",
@@ -14,17 +14,18 @@
     "watch:cjs": "tsc -w",
     "clean": "rimraf dist",
     "compile": "yarn clean && concurrently \"yarn compile:esm\" \"yarn compile:cjs\"",
-    "test": "jest"
+    "test": "jest",
+    "prepare": "yarn compile"
   },
   "files": [
     "/bin",
     "/dist"
   ],
   "dependencies": {
+    "@graphy/memory.dataset.fast": "^4.3.3",
     "@oclif/command": "^1.8.0",
     "@tpluscode/rdf-ns-builders": "^0.4.0",
     "clownface": "^1.2.0",
-    "graphy": "^4.3.3",
     "merge-stream": "^2.0.0",
     "p-limit": "^3.1.0",
     "rdf-parse": "^1.6.1",

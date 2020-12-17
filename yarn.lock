@@ -589,7 +589,7 @@
   resolved "https://registry.yarnpkg.com/@graphy/core.iso.threads/-/core.iso.threads-4.3.3.tgz#b14646be568a1dcfbf09ebe214bd889da55db721"
   integrity sha512-UthAckBxABBkKPnKPeCf9ZM3QmlnlimBNzAT4lbj6+LdKy6K9EvK4rEzb+QQPnCHTQfpYGJErJcRfTv+kh5L2Q==
 
-"@graphy/memory.dataset.fast@4.3.3":
+"@graphy/memory.dataset.fast@4.3.3", "@graphy/memory.dataset.fast@^4.3.3":
   version "4.3.3"
   resolved "https://registry.yarnpkg.com/@graphy/memory.dataset.fast/-/memory.dataset.fast-4.3.3.tgz#0a931fa5741516bd233175fb44ea1249e6d83728"
   integrity sha512-7ooKeO/+tttXfNiO1mhtodHxiiXtKOOZXWNp1/WW1GgmnLVMsgFvcI1NaND4+wwFHWY/FCQBkCSxb7ADVbF0AQ==
