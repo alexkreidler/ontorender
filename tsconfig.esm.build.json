@@ -2,8 +2,8 @@
     "extends": "./tsconfig.json",
 
     "compilerOptions": {
-        "module": "CommonJS",
-        "outDir": "dist/cjs",
+        "module": "ESNext",
+        "outDir": "dist/esm",
         "declaration": false,
         "declarationDir": null
     }
