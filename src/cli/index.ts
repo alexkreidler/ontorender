@@ -18,7 +18,6 @@ class OntologyRender extends Command {
             required: true,
         }),
 
-        // flag with no value (-f, --force)
         force: flags.boolean({ description: "overwrites existing files" }),
     }
 
@@ -27,7 +26,7 @@ class OntologyRender extends Command {
     async run() {
         const { args, flags } = this.parse(OntologyRender)
 
-        render(flags.from, flags.to)
+        await render(flags.from, flags.to, flags.force)
     }
 }
 

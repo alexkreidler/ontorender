@@ -49,14 +49,19 @@ const handlePointer = (p: clownface.AnyPointer): Item => {
     return { name, node: iri, dataset: cx.dataset, pointer: p }
 }
 
-async function renderProperty(item: Item, output: string) {
+async function renderProperty(item: Item, output: string, force: boolean) {
     console.log("Rendering property", item.name)
     const data = item.dataset.match(item.node)
     // we can do the following b/c we know its graphy
-    await serialize_all(output, item.name, data as DatasetCore & Stream<Quad>)
+    await serialize_all(
+        output,
+        item.name,
+        data as DatasetCore & Stream<Quad>,
+        force
+    )
 }
 
-async function renderClass(item: Item, output: string) {
+async function renderClass(item: Item, output: string, force: boolean) {
     console.log("Rendering class", item.name)
 
     const data = item.dataset.match(item.node)
@@ -70,7 +75,7 @@ async function renderClass(item: Item, output: string) {
     //@ts-ignore
     const fstream = merge(data as GraphyMemoryDataset, ...propertyData)
     //@ts-ignore
-    await serialize_all(output, item.name, fstream as Stream<Quad>)
+    await serialize_all(output, item.name, fstream as Stream<Quad>, force)
 }
 
 const checkMakeDirectory = async (directory: string) => {
@@ -97,7 +102,7 @@ const checkMakeDirectory = async (directory: string) => {
     }
 }
 
-export async function render(input: string, output: string) {
+export async function render(input: string, output: string, force: boolean) {
     console.log("Checking output directory")
     await checkMakeDirectory(output)
 
@@ -119,10 +124,10 @@ export async function render(input: string, output: string) {
 
     const properties = clownface({ dataset }).has(rdf.type, rdf.Property)
 
-    const workers = properties.map((q) =>
-        renderProperty(handlePointer(q), output)
+    const workersProperties = properties.map((q) =>
+        renderProperty(handlePointer(q), output, force)
     )
-    await Promise.all(workers)
+    await Promise.all(workersProperties)
 
     console.log("Properties done")
 
@@ -130,7 +135,9 @@ export async function render(input: string, output: string) {
 
     const classes = clownface({ dataset }).has(rdf.type, rdfs.Class)
 
-    const w2 = classes.map((q) => renderClass(handlePointer(q), output))
-    await Promise.all(w2)
+    const workersClasses = classes.map((q) =>
+        renderClass(handlePointer(q), output, force)
+    )
+    await Promise.all(workersClasses)
     console.log("Classes done")
 }
