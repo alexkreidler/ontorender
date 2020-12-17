@@ -66,11 +66,13 @@ async function renderClass(item: Item, output: string, force: boolean) {
 
     const data = item.dataset.match(item.node)
 
-    const propertyData = item.pointer.in(schema.domainIncludes).map((q) => {
-        const propertyDs = item.dataset.match(q.term)
+    const propertyData = item.pointer
+        .in([schema.domainIncludes, rdfs.domain])
+        .map((q) => {
+            const propertyDs = item.dataset.match(q.term)
 
-        return propertyDs as GraphyMemoryDataset
-    })
+            return propertyDs as GraphyMemoryDataset
+        })
 
     //@ts-ignore
     const fstream = merge(data as GraphyMemoryDataset, ...propertyData)
